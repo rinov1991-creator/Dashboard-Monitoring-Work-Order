@@ -110,6 +110,7 @@ td[data-sc]:hover b,td[data-sc]:hover{text-decoration:underline}
  <div class="brand"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="1" y="1" width="38" height="38" rx="11" fill="#2b1a0e" stroke="#ff6b00" stroke-opacity=".5"/><g fill="none" stroke="#ff6b00" stroke-width="2"><rect x="10" y="10" width="8" height="8" rx="2"/><rect x="22" y="10" width="8" height="8" rx="2"/><rect x="10" y="22" width="8" height="8" rx="2"/><rect x="22" y="22" width="8" height="8" rx="2"/></g></svg><div><b>Dashboard Monitoring WO</b><small>Enterprise &amp; Retail Operations</small></div></div>
  <div class="chip"><i class="dot"></i><span id="c1">Memuat data...</span></div>
  <div class="chip">Period: <select id="mo" aria-label="Pilih bulan"></select></div>
+ <div class="chip">Week: <select id="wk" aria-label="Filter week"><option value="">Semua</option></select></div>
  <label class="chip srch"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Cari pelanggan, WO, status... (Enter)"></label>
  <div class="rt"><div class="ic bell" aria-label="Notifikasi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg><i></i></div><div class="ic">OP</div></div>
 </div>
@@ -145,7 +146,7 @@ td[data-sc]:hover b,td[data-sc]:hover{text-decoration:underline}
 
 <script>
 // ===== KONFIGURASI: tempel link deployment Apps Script (berakhiran /exec) =====
-const API='https://script.google.com/macros/s/AKfycbxMEhh1ZMyTIDDaqVsFnuu1aR9kJGAodO5NPa2GfLoRV4YyEVSpeKHg-ETJQh30FWnW/exec';
+const API='https://script.google.com/macros/s/AKfycbxuLYZ0CI_AVCcfZ1s99AT0zUTO7lKJvjURE_57X9AV3W-XnJ2ei11PCc-TRt4IQ6Zd/exec';
 
 // Urutan slot KPI harus sama dengan Kode.gs: 0=N/A 1=OFF 2=Progress 3=ON 4=Cancel
 const KPI=[['na','N/A'],['off','OFF Target'],['pg','On Progress'],['on','ON Target'],['cn','Cancel']];
@@ -157,7 +158,7 @@ const all=rows=>rows.reduce((a,r)=>a+r.slice(1).reduce((x,y)=>x+y,0),0);
 const pct=(a,b)=>a+b?a/(a+b)*100:null;   // persen KPI hanya dari ON dan OFF
 const fp=v=>v===null?'-':v.toFixed(2)+'%';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-let cur='all',month='',risk=false,LAST=null;
+let cur='all',month='',week='',risk=false,LAST=null;
 
 // Lingkup data tiap blok (sama dengan aturan hitung di Kode.gs)
 const SCOPE={
@@ -247,6 +248,7 @@ document.getElementById('flt').onclick=()=>setRisk(!risk);
 /* ===== Drill-down popup ===== */
 const DC=[['sb','SUB Work Order'],['sg','Segment'],['nm','Nama Pelanggan'],['to','Tanggal WO Admin OPS'],['rs','Target RFS Sales'],['rt','Target RFS Teknis'],['ar','Actual RFS'],['st','Status']];
 let DR=[],DT='';
+const tag=()=>month+(week?' · '+week:'');
 function drillRows(d){
   let rows=(LAST.rows||[]).filter(SCOPE[d.sc].f);
   if(d.wo!==undefined)rows=rows.filter(r=>r.w===d.wo);
@@ -282,7 +284,7 @@ function drillCsv(){
   const out=[DC.map(c=>c[1])];DR.forEach(r=>out.push(DC.map(c=>r[c[0]])));
   const txt=out.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+txt],{type:'text/csv'}));
-  a.download=('WO_'+month+'_'+DT).replace(/[^\w\-]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
+  a.download=('WO_'+tag()+'_'+DT).replace(/[^\w\-]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
 }
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-sc]');
@@ -301,7 +303,7 @@ function doSearch(){
   const ql=q.toLowerCase();
   DR=(LAST.rows||[]).filter(r=>r.w.toLowerCase().includes(ql)||DC.some(c=>String(r[c[0]]).toLowerCase().includes(ql)));
   DT='Pencarian '+q;
-  document.getElementById('mtl').textContent='Pencarian: "'+q+'" · '+month;
+  document.getElementById('mtl').textContent='Pencarian: "'+q+'" · '+tag();
   document.getElementById('mq').value='';
   drawDrill();showDrill();
 }
@@ -314,7 +316,7 @@ function csv(){
    .forEach(([s,rows])=>rows.forEach(r=>out.push([s,...r])));
   const txt=out.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+txt],{type:'text/csv'}));
-  a.download='WO_'+month.replace(/\s+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
+  a.download=('WO_'+tag()).replace(/[^\w\-]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
 }
 document.getElementById('exp').onclick=csv;
 
@@ -324,7 +326,7 @@ async function load(name){
   st.className='';st.textContent='Memuat data...';
   try{
     if(!API||API.indexOf('GANTI_')===0)throw new Error('Link API belum diisi (lihat const API di bagian script).');
-    const url=API+'?api=1'+(name?'&month='+encodeURIComponent(name):'')+'&t='+Date.now();
+    const url=API+'?api=1'+(name?'&month='+encodeURIComponent(name):'')+(week?'&week='+encodeURIComponent(week):'')+'&t='+Date.now();
     const r=await fetch(url);
     if(!r.ok)throw new Error('HTTP '+r.status);
     const res=await r.json();
@@ -332,12 +334,15 @@ async function load(name){
     month=res.month;st.textContent='';
     const mo=document.getElementById('mo');
     mo.innerHTML=res.names.map(n=>`<option${n==res.month?' selected':''}>${n}</option>`).join('');
-    mo.onchange=()=>load(mo.value);
+    mo.onchange=()=>{week='';load(mo.value)};
+    const wk=document.getElementById('wk'),ws=res.weeks||[];
+    wk.innerHTML='<option value="">Semua</option>'+ws.map(w=>`<option value="${esc(w)}"${w===week?' selected':''}>${esc(w)}</option>`).join('');
+    wk.onchange=()=>{week=wk.value;load(month)};
     const now=new Date().toLocaleString('id-ID');
-    document.getElementById('c1').innerHTML=`${res.month}: <b>${res.D.total} WO terbaca</b> · diperbarui ${now}`;
-    document.getElementById('h2').innerHTML=`${res.month} <span>${res.D.total} WO Terbaca</span>`;
-    document.getElementById('upd').textContent='Diperbarui '+now+' WIB · GitHub';
-    if(!res.D.total){st.textContent='Tab '+res.month+' belum ada data WO.'}
+    document.getElementById('c1').innerHTML=`${tag()}: <b>${res.D.total} WO terbaca</b> · diperbarui ${now}`;
+    document.getElementById('h2').innerHTML=`${esc(tag())} <span>${res.D.total} WO Terbaca</span>`;
+    document.getElementById('upd').textContent='Diperbarui '+now+' WIB · v5';
+    if(!res.D.total){st.textContent='Tab '+res.month+(week?' ('+week+')':'')+' belum ada data WO.'}
     render(res.D);
   }catch(e){
     st.className='err';
