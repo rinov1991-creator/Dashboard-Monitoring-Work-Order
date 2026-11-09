@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Monitoring WO</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0f;--p:#17171a;--p2:#1f1f23;--bd:#2a2a30;--tx:#f3f3f3;--mu:#9a9aa4;--or:#ff6b00;--on:#4df0a5;--off:#ffb0c4;--pg:#ff7a1a;--na:#8a8d78;--cn:#b4b4bd;--risk:#d6165f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 "Space Grotesk",system-ui,sans-serif}
+.w{max-width:1320px;margin:0 auto;padding:16px clamp(10px,2vw,24px) 36px;display:grid;gap:14px}
+.bar1,.bar2,.tabs{background:var(--p);border:1px solid var(--bd);border-radius:26px;padding:12px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}.brand svg{flex:none}
+.brand b{display:block;font-size:20px;line-height:1.1}.brand small{color:var(--mu);font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.chip{background:var(--p2);border:1px solid var(--bd);border-radius:999px;padding:7px 14px;font-size:12px;color:var(--mu);display:flex;gap:8px;align-items:center}
+.chip b{color:var(--tx)}.dot{width:8px;height:8px;border-radius:50%;background:var(--or);display:inline-block}
+select{font:inherit;font-weight:600;color:var(--tx);background:transparent;border:0;outline:0;cursor:pointer}select option{background:var(--p);color:var(--tx)}
+.srch{flex:1;max-width:280px;min-width:180px}.srch input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--tx);font:inherit;font-size:12px}
+.srch input::placeholder{color:var(--mu)}
+.ic{position:relative;width:40px;height:40px;border-radius:50%;background:var(--p2);border:1px solid var(--bd);display:grid;place-items:center;color:var(--tx);font-weight:700;font-size:13px;cursor:pointer}
+.ic.bell i{position:absolute;top:5px;right:6px;width:9px;height:9px;border-radius:50%;background:#ff2d78;border:2px solid var(--p2)}
+.rt{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.live{background:#3a2210;color:var(--or);border-radius:999px;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.04em}
+.bar2 h2{margin:0;font-size:20px}.bar2 h2 span{color:var(--or);font-size:13px;font-weight:600;margin-left:6px}
+.btn{font:inherit;font-weight:600;font-size:13px;color:var(--tx);background:var(--p2);border:1px solid var(--bd);border-radius:999px;padding:8px 16px;cursor:pointer;display:flex;gap:7px;align-items:center}
+.btn:hover,.btn.act{border-color:var(--or)}.btn svg{flex:none}
+.btn.sq{width:40px;height:40px;padding:0;justify-content:center;border-radius:14px}
+.sep{width:1px;height:24px;background:var(--bd)}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.k{background:var(--p);border:1px solid var(--bd);border-radius:32px;padding:18px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+.kh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mu)}
+.kb{display:flex;justify-content:space-between;align-items:flex-end;margin:10px 0}
+.kb b{font-size:54px;line-height:1}.kb span{color:var(--mu);font-weight:600;font-size:13px;padding-bottom:6px}
+.badge{border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0;white-space:nowrap}
+.b-or{background:#3a2210;color:var(--or)}.b-on{background:#12382a;color:var(--on)}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mb{background:var(--p2);border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mu)}
+.mb b{margin-left:auto;font-size:13px}
+i.on,i.off,i.pg,i.na,i.cn{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.on{background:var(--on)}.off{background:var(--off)}.pg{background:var(--pg)}.na{background:var(--na)}.cn{background:var(--cn)}
+b.c-on{color:var(--on)}b.c-off{color:var(--off)}b.c-pg{color:var(--pg)}b.c-na{color:var(--mu)}b.c-cn{color:var(--cn)}
+.k.hot{background:linear-gradient(140deg,#ff8c00,#ff5400);color:#1a0b00;border:0;box-shadow:0 8px 40px rgba(255,107,0,.35)}
+.k.hot .kh,.k.hot .kb span{color:#3a1a00}.k.hot .badge{background:#ff7a1a;color:#1a0b00;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.k.hot .mb{background:rgba(0,0,0,.18);color:#3a1a00}.k.hot b.c-on,.k.hot b.c-off,.k.hot b.c-pg,.k.hot b.c-na,.k.hot b.c-cn{color:#1a0b00}
+.k.hot i.on{background:#141414}.k.hot i.off{background:#ff2d78}.k.hot i.pg{background:#3a1a00}.k.hot i.na{background:#7a3a10}.k.hot i.cn{background:#6b6b72}
+.tabs{padding:10px 12px}.tb{display:flex;gap:6px;flex-wrap:wrap}
+.tb button{font:inherit;font-weight:600;font-size:14px;color:var(--mu);background:transparent;border:0;border-radius:999px;padding:9px 18px;cursor:pointer}
+.tb button[aria-pressed="true"]{background:var(--or);color:#1a0b00}
+.lg{display:flex;flex-wrap:wrap;gap:6px}.lg span{border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;display:flex;gap:6px;align-items:center;background:var(--p2)}
+.blk{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:14px;align-items:stretch}
+@media(max-width:900px){.blk{grid-template-columns:1fr}}
+.card{background:var(--p);border:1px solid var(--bd);border-radius:32px;padding:20px;min-width:0;display:flex;flex-direction:column}
+.ch{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:14px}
+.ch h3{margin:0;font-size:18px;display:flex;gap:8px;align-items:center}.ch p{margin:4px 0 0;color:var(--mu);font-size:12px}
+.ch .r{display:flex;gap:8px;align-items:center}
+.tag{background:var(--p2);border-radius:999px;padding:4px 12px;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;white-space:nowrap}
+.ib{width:36px;height:36px;border-radius:12px;background:var(--p2);display:grid;place-items:center;border:1px solid var(--bd);cursor:pointer;color:var(--mu)}
+.ib.act{border-color:var(--or);color:var(--or)}
+.mi{width:28px;height:28px;border:1.5px solid var(--or);border-radius:7px;display:grid;place-items:center;color:var(--or);flex:none}
+.dc{display:flex;justify-content:center}
+.ll{list-style:none;margin:14px 0 0;padding:0}.ll li{display:flex;align-items:center;gap:9px;padding:6px 2px;font-size:13px;font-weight:600}
+.ll li span{flex:1}.ll em{font-style:normal;width:52px;text-align:right;color:var(--mu);font-weight:500;font-size:12px}.ll li:first-child em{color:var(--or)}
+.ll i{width:9px;height:9px;border-radius:50%;flex:none}
+.tm{margin-top:auto;display:flex;justify-content:space-between;align-items:center;background:var(--p2);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--mu)}
+.tm b{color:var(--on);font-size:11px;display:flex;gap:6px;align-items:center}
+.sc{overflow-x:auto}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{color:var(--mu);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:12px 8px;background:var(--p2);white-space:nowrap}
+th:first-child{border-radius:12px 0 0 12px;text-align:left;padding-left:14px}th:last-child{border-radius:0 12px 12px 0}
+td{padding:12px 8px;white-space:nowrap}td:first-child{font-weight:700;padding-left:14px}
+.n{text-align:center}td.n{font-weight:600}.z{color:var(--mu);font-weight:400}
+td i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:8px}
+tr.risk td{background:#2a1220}tr.risk td:first-child{border-radius:12px 0 0 12px}tr.risk td:last-child{border-radius:0 12px 12px 0}
+tr.t td{border-top:1px solid var(--bd);font-weight:700}
+.pill{display:inline-flex;gap:5px;align-items:center;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700}
+.p-ok{background:#12382a;color:var(--on)}.p-rk{background:var(--risk);color:#fff}.p-na{background:var(--p2);color:var(--mu)}
+.mf{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;background:var(--p2);border-radius:14px;padding:12px 14px;margin-top:auto;font-size:12px;color:var(--mu)}
+.sc+.mf{margin-top:14px}
+.mf b{color:var(--tx)}.mf .big{font-size:20px}
+details{margin-top:14px}summary{cursor:pointer;color:var(--mu);font-size:13px}
+#st{color:var(--mu);font-size:12px}
+#st.err{color:var(--off)}
+/* elemen yang bisa diklik */
+[data-sc]{cursor:pointer}
+td[data-sc]:hover b,td[data-sc]:hover{text-decoration:underline}
+.mb[data-sc]:hover{outline:1px solid var(--or)}
+.kb b[data-sc]:hover,.mf b[data-sc]:hover{text-decoration:underline}
+.ll li[data-sc]:hover{background:var(--p2);border-radius:8px}
+/* popup drill-down */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.ov.open{display:flex}
+.md{background:var(--p);border:1px solid var(--bd);border-radius:28px;width:min(1150px,100%);max-height:88vh;display:flex;flex-direction:column;padding:20px}
+.mh{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.mh h3{margin:0;font-size:18px}.mh p{margin:4px 0 0;color:var(--mu);font-size:12px}
+.mt{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mt input{background:var(--p2);border:1px solid var(--bd);border-radius:999px;padding:8px 14px;color:var(--tx);font:inherit;font-size:12px;outline:0;min-width:180px}
+.md .sc{overflow:auto;flex:1}
+.dt th{text-align:left;position:sticky;top:0;z-index:1}
+.dt th:first-child{padding-left:14px}
+.dt td{border-top:1px solid var(--bd);white-space:normal;font-weight:400;padding:10px 8px}
+.dt td:first-child{font-weight:400;padding-left:14px}
+.dt td.nm{min-width:260px;font-weight:600}
+.dt td.nw{white-space:nowrap}
+.emp{padding:28px;text-align:center;color:var(--mu)}
+</style>
+</head>
+<body>
+<div class="w">
+<div class="bar1">
+ <div class="brand"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="1" y="1" width="38" height="38" rx="11" fill="#2b1a0e" stroke="#ff6b00" stroke-opacity=".5"/><g fill="none" stroke="#ff6b00" stroke-width="2"><rect x="10" y="10" width="8" height="8" rx="2"/><rect x="22" y="10" width="8" height="8" rx="2"/><rect x="10" y="22" width="8" height="8" rx="2"/><rect x="22" y="22" width="8" height="8" rx="2"/></g></svg><div><b>Dashboard Monitoring WO</b><small>Enterprise &amp; Retail Operations</small></div></div>
+ <div class="chip"><i class="dot"></i><span id="c1">Memuat data...</span></div>
+ <div class="chip">Period: <select id="mo" aria-label="Pilih bulan"></select></div>
+ <label class="chip srch"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Cari pelanggan, WO, status... (Enter)"></label>
+ <div class="rt"><div class="ic bell" aria-label="Notifikasi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg><i></i></div><div class="ic">OP</div></div>
+</div>
+<div class="bar2">
+ <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="live">LIVE TELEMETRY</span><h2 id="h2">-</h2><span class="chip" id="upd" style="padding:5px 12px;border:0;background:transparent">-</span></div>
+ <div class="rt">
+  <button class="btn" id="sync"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4df0a5" stroke-width="2.4"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></svg>Sync Data</button>
+  <button class="btn" id="exp"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.4"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>Export CSV</button>
+  <span class="sep"></span>
+  <button class="btn sq" id="flt" aria-label="Filter At Risk" title="Tampilkan hanya At Risk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+ </div>
+</div>
+<div id="st"></div>
+<div class="sum" id="sum"></div>
+<div class="tabs"><div class="tb" id="tabs"></div>
+ <div class="lg"><span><i class="on"></i>ON Target / Done</span><span><i class="off"></i>OFF Target</span><span><i class="pg"></i>On Progress</span><span><i class="cn"></i>Cancel</span><span><i class="na"></i>N/A Not Applied</span></div></div>
+<div id="app"></div>
+</div>
+
+<div class="ov" id="ov" aria-hidden="true">
+ <div class="md" role="dialog" aria-modal="true" aria-labelledby="mtl">
+  <div class="mh">
+   <div><h3 id="mtl">-</h3><p id="msub">-</p></div>
+   <div class="mt">
+    <input id="mq" type="search" placeholder="Cari di daftar ini...">
+    <button class="btn" id="mex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.4"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>CSV</button>
+    <button class="btn sq" id="mcl" aria-label="Tutup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+   </div>
+  </div>
+  <div class="sc" id="mbody"></div>
+ </div>
+</div>
+
+<script>
+// ===== KONFIGURASI: tempel link deployment Apps Script (berakhiran /exec) =====
+const API='GANTI_DENGAN_LINK_EXEC_KAMU';
+
+// Urutan slot KPI harus sama dengan Kode.gs: 0=N/A 1=OFF 2=Progress 3=ON 4=Cancel
+const KPI=[['na','N/A'],['off','OFF Target'],['pg','On Progress'],['on','ON Target'],['cn','Cancel']];
+const ST=[['off','Cancel'],['on','Done'],['pg','On Progress']];
+const PAL=['#ff6b00','#4df0a5','#ffb0c4','#c4d600','#8a8d78','#a3a58f','#6b6b72','#55555c','#b8955a','#7fb5ff'];
+const CM={};let ci=0;const col=n=>CM[n]||(CM[n]=PAL[ci++%PAL.length]);
+const sc=(rows,i)=>rows.reduce((a,r)=>a+r[i],0);
+const all=rows=>rows.reduce((a,r)=>a+r.slice(1).reduce((x,y)=>x+y,0),0);
+const pct=(a,b)=>a+b?a/(a+b)*100:null;   // persen KPI hanya dari ON dan OFF
+const fp=v=>v===null?'-':v.toFixed(2)+'%';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+let cur='all',month='',risk=false,LAST=null;
+
+// Lingkup data tiap blok (sama dengan aturan hitung di Kode.gs)
+const SCOPE={
+  b2b:{n:'Segment B2B',f:r=>r.g=='b'},
+  retail:{n:'Segment Retail',f:r=>r.g=='r'},
+  tsb:{n:'TS Area – B2B',f:r=>r.t&&r.g=='b'},
+  tsr:{n:'TS Area – Retail',f:r=>r.t&&r.g=='r'},
+  ts:{n:'TS Area',f:r=>r.t},
+  reps:{n:'TS REPS',f:r=>r.p}
+};
+// atribut klik: scope, work order (opsional), slot KPI (opsional), slot status (opsional)
+const at=(s,o)=>{o=o||{};return `data-sc="${s}"${o.w!=null?` data-wo="${esc(o.w)}"`:''}${o.k!=null?` data-k="${o.k}"`:''}${o.s!=null?` data-s="${o.s}"`:''}`};
+
+function donut(title,sl,unit,extra,s,mode){
+  sl=sl.filter(x=>x[1]).sort((a,b)=>b[1]-a[1]);const tot=sc(sl,1),R=70,C=2*Math.PI*R;let o=0;
+  const arcs=sl.map(x=>{const L=Math.max(x[1]/tot*C-(sl.length>1?3:0),0);const a=`<circle cx="100" cy="100" r="${R}" fill="none" style="stroke:${x[2]}" stroke-width="24" stroke-dasharray="${L} ${C-L}" stroke-dashoffset="${-o}" transform="rotate(-90 100 100)"><title>${x[0]}: ${x[1]}</title></circle>`;o+=x[1]/tot*C;return a}).join('');
+  const li=sl.map(x=>`<li ${mode=='wo'?at(s,{w:x[3]}):at(s,{s:x[3]})}><i style="background:${x[2]}"></i><span>${x[0]}</span><b>${x[1]}</b><em>${(x[1]/tot*100).toFixed(1)}%</em></li>`).join('');
+  return `<div class="card"><div class="ch"><h3><i class="dot" style="background:#c4d600"></i>${title}</h3><span class="tag">${tot} items</span></div><div class="dc"><svg viewBox="0 0 200 200" width="210" height="210" role="img" aria-label="${title}">${arcs}<text x="100" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="var(--mu)" letter-spacing="1">VOLUME</text><text x="100" y="114" text-anchor="middle" font-size="38" font-weight="700" fill="currentColor">${tot}</text><text x="100" y="132" text-anchor="middle" font-size="10" font-weight="700" fill="var(--or)">${unit}</text></svg></div><ul class="ll">${li}</ul>${extra||''}</div>`;
+}
+const TM='<div class="tm"><span>Telemetry Status</span><b><i class="on"></i>100% SYNCED</b></div>';
+const cnt=(t,rows,u,s)=>donut(t,rows.map(r=>[r[0],r[1],col(r[0]),r[0]]),u,TM,s,'wo');
+const std=(t,rows,u,s)=>donut(t,ST.map((k,i)=>[k[1],sc(rows,i+1),`var(--${k[0]})`,i]),u,`<details><summary>Rincian per Work Order</summary><div class="sc">${tbl(ST,rows,0,s,'s')}</div></details>`,s,'st');
+
+// kind: 'k' = kolom KPI, 's' = kolom status
+function tbl(keys,rows,m,s,kind){
+  const idx=keys.map((k,i)=>i).filter(i=>rows.some(r=>r[i+1]));
+  const oi=keys.findIndex(k=>k[0]=='on')+1,fi=keys.findIndex(k=>k[0]=='off')+1;
+  const tot=['Grand Total',...keys.map((k,i)=>sc(rows,i+1))];
+  const cell=(w,i)=>at(s,{w:w,[kind]:i});
+  let h=`<table><thead><tr><th>Work Order</th><th class="n">Total</th>${idx.map(i=>`<th class="n">${keys[i][1]}</th>`).join('')}${m?'<th class="n">ON %</th><th class="n">OFF %</th><th class="n">Status KPI</th>':''}</tr></thead><tbody>`;
+  (m?rows:[...rows,tot]).forEach((r,j)=>{
+    const isT=!m&&j==rows.length,w=isT?null:r[0];
+    const t=idx.reduce((a,i)=>a+r[i+1],0),on=r[oi],off=r[fi],p=pct(on,off);
+    const rk=m&&p!==null&&p<90;
+    h+=`<tr class="${rk?'risk':isT?'t':''}"><td>${m?`<i style="background:${col(r[0])}"></i>`:''}${r[0]}</td><td class="n" ${at(s,{w:w})}>${t}</td>${idx.map(i=>{const v=r[i+1],c=m?'c-'+keys[i][0]:'';return v?`<td class="n" ${cell(w,i)}><b class="${c}">${v}</b></td>`:'<td class="n z">-</td>'}).join('')}`;
+    if(m){const q=p===null?null:100-p;
+      h+=`<td class="n"><b class="${p===null?'z':p>=90?'c-on':'c-off'}">${fp(p)}</b></td><td class="n"><b class="${q?'c-off':'z'}">${fp(q)}</b></td><td class="n">${p===null?'<span class="pill p-na">-</span>':rk?'<span class="pill p-rk">At Risk</span>':'<span class="pill p-ok"><i class="on" style="width:6px;height:6px;margin:0"></i>Optimal</span>'}</td>`}
+    h+='</tr>';
+  });
+  return h+'</tbody></table>';
+}
+function mx(t,sub,rows,s){
+  const on=sc(rows,4),off=sc(rows,2),tot=all(rows),p=pct(on,off),cn=sc(rows,5);
+  return `<div class="card mxc"><div class="ch"><div style="display:flex;gap:10px"><span class="mi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 20v-8M12 20V6M18 20v-5"/></svg></span><div><h3>${t}</h3><p>${sub}</p></div></div><div class="r"><span class="tag">${rows.length} Kategori WO</span><span class="ib fb" role="button" aria-label="Filter At Risk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span></div></div><div class="sc">${tbl(KPI,rows,1,s,'k')}</div><div class="mf"><span>TOTAL AGGREGATION: <b class="big" ${at(s)}>${tot}</b> WO &nbsp;<b style="color:var(--on)" ${at(s,{k:3})}>${on} ON Target</b> &nbsp;<b style="color:var(--off)" ${at(s,{k:1})}>${off} OFF Target</b>${cn?` &nbsp;<b style="color:var(--cn)" ${at(s,{k:4})}>${cn} Cancel</b>`:''}</span><span>Overall SLA: <b style="color:var(--or)">${fp(p)} Compliant</b></span></div></div>`;
+}
+const blk=(g,a,b)=>`<div class="blk" data-g="${g}">${a}${b}</div>`;
+// Kartu ringkasan: ON, OFF, In Progress, Cancel (slot ke-5)
+const mini=(r,s)=>[['on','ON Target',4,3],['off','OFF',2,1],['pg','In Progress',3,2],['cn','Cancel',5,4]].map(([c,l,i,k])=>`<div class="mb" ${at(s,{k:k})}><i class="${c}"></i>${l}<b class="c-${c}">${sc(r,i)}</b></div>`).join('');
+
+function render(D){
+  LAST=D;
+  const b2b=sc(D.b2bCnt,1),rt=sc(D.rtCnt,1),all2=b2b+rt||1;
+  const tsB=all(D.tsB2bSt),tsR=all(D.tsRtSt);
+  const rOn=sc(D.repKpi,4),rOff=sc(D.repKpi,2),rp=pct(rOn,rOff),repT=all(D.repSt);
+  const tsK=[...D.tsB2bKpi,...D.tsRtKpi];
+  document.getElementById('sum').innerHTML=
+  `<div class="k"><div class="kh">Segment B2B<span class="badge b-or">${(b2b/all2*100).toFixed(1)}% Total</span></div><div class="kb"><b ${at('b2b')}>${b2b}</b><span>Total WO B2B</span></div><div class="mg">${mini(D.b2bKpi,'b2b')}</div></div>
+   <div class="k"><div class="kh">Segment Retail<span class="badge b-on">${(rt/all2*100).toFixed(1)}% Total</span></div><div class="kb"><b ${at('retail')}>${rt}</b><span>Total WO Retail</span></div><div class="mg">${mini(D.rtKpi,'retail')}</div></div>
+   <div class="k hot"><div class="kh">Monitoring TS Area<span class="badge">${tsB} B2B • ${tsR} Retail</span></div><div class="kb"><b ${at('ts')}>${tsB+tsR}</b><span>Total WO TS Area</span></div><div class="mg">${mini(tsK,'ts')}</div></div>
+   <div class="k hot"><div class="kh">Monitoring TS REPS<span class="badge">ON: ${rp===null?'-':rp.toFixed(2)+'%'} • OFF: ${rp===null?'-':(100-rp).toFixed(2)+'%'}</span></div><div class="kb"><b ${at('reps')}>${repT}</b><span>Total WO TS REPS</span></div><div class="mg">${mini(D.repKpi,'reps')}</div></div>`;
+  const sub=s=>`Evaluasi pencapaian Service Level Agreement per kategori pekerjaan ${s}`;
+  const S=[['b2b','Segment B2B',blk('b2b',cnt('All WO B2B Composition',D.b2bCnt,'WO B2B','b2b'),mx('KPI All WO B2B Matrix',sub('B2B'),D.b2bKpi,'b2b'))],
+   ['retail','Segment Retail',blk('retail',cnt('All WO Retail Composition',D.rtCnt,'WO RETAIL','retail'),mx('KPI All WO Retail Matrix',sub('Retail'),D.rtKpi,'retail'))],
+   ['ts','TS Area',blk('ts',std('All WO TS Area – B2B',D.tsB2bSt,'WO TS B2B','tsb'),mx('KPI WO TS Area – B2B Matrix',sub('TS Area B2B'),D.tsB2bKpi,'tsb'))+blk('ts',std('All WO TS Area – Retail',D.tsRtSt,'WO TS RETAIL','tsr'),mx('KPI WO TS Area – Retail Matrix',sub('TS Area Retail'),D.tsRtKpi,'tsr'))],
+   ['reps','TS REPS',blk('reps',std('All WO TS REPS',D.repSt,'WO REPS','reps'),mx('KPI WO TS REPS Matrix',sub('TS REPS'),D.repKpi,'reps'))]];
+  const app=document.getElementById('app'),tabs=document.getElementById('tabs');
+  app.innerHTML=S.map(s=>s[2]).join('');app.style.display='grid';app.style.gap='14px';
+  app.querySelectorAll('.fb').forEach(b=>b.onclick=()=>setRisk(!risk));
+  tabs.innerHTML='';
+  [['all','Semua'],...S.map(s=>[s[0],s[1]])].forEach(([id,l])=>{
+    const b=document.createElement('button');b.textContent=l;b.setAttribute('aria-pressed',id==cur);
+    b.onclick=()=>{cur=id;tabs.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));show()};
+    tabs.appendChild(b);
+  });
+  show();filt();
+}
+function show(){document.querySelectorAll('.blk').forEach(s=>s.hidden=!(cur=='all'||s.dataset.g==cur))}
+// Filter At Risk saja; pencarian lewat Enter -> popup (lihat doSearch)
+function filt(){
+  document.querySelectorAll('.mxc tbody tr').forEach(tr=>{tr.hidden=risk&&!tr.classList.contains('risk')});
+  document.getElementById('flt').classList.toggle('act',risk);
+  document.querySelectorAll('.fb').forEach(b=>b.classList.toggle('act',risk));
+}
+function setRisk(v){risk=v;filt()}
+document.getElementById('flt').onclick=()=>setRisk(!risk);
+
+/* ===== Drill-down popup ===== */
+const DC=[['sb','SUB Work Order'],['sg','Segment'],['nm','Nama Pelanggan'],['to','Tanggal WO Admin OPS'],['rs','Target RFS Sales'],['rt','Target RFS Teknis'],['ar','Actual RFS'],['st','Status']];
+let DR=[],DT='';
+function drillRows(d){
+  let rows=(LAST.rows||[]).filter(SCOPE[d.sc].f);
+  if(d.wo!==undefined)rows=rows.filter(r=>r.w===d.wo);
+  if(d.k!==undefined)rows=rows.filter(r=>r.k==+d.k);
+  if(d.s!==undefined)rows=rows.filter(r=>r.s==+d.s);
+  return rows;
+}
+function drawDrill(){
+  const q=document.getElementById('mq').value.trim().toLowerCase();
+  const rows=DR.filter(r=>!q||DC.some(c=>String(r[c[0]]).toLowerCase().includes(q)));
+  document.getElementById('msub').textContent=rows.length+' WO'+(q?' (dari '+DR.length+')':'');
+  document.getElementById('mbody').innerHTML=rows.length
+   ?`<table class="dt"><thead><tr><th>#</th>${DC.map(c=>`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td>${DC.map(c=>`<td class="${c[0]=='nm'?'nm':c[0]=='sb'||c[0]=='sg'?'':'nw'}">${esc(r[c[0]]||'-')}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+   :'<div class="emp">Tidak ada data.</div>';
+}
+function showDrill(){
+  const ov=document.getElementById('ov');ov.classList.add('open');ov.setAttribute('aria-hidden','false');
+}
+function openDrill(el){
+  const d=el.dataset;if(!LAST||!SCOPE[d.sc])return;
+  DR=drillRows(d);
+  const parts=[SCOPE[d.sc].n];
+  parts.push(d.wo!==undefined?d.wo:'Semua WO');
+  if(d.k!==undefined)parts.push(KPI[+d.k][1]);
+  if(d.s!==undefined)parts.push('Status '+ST[+d.s][1]);
+  DT=parts.join(' · ');
+  document.getElementById('mtl').textContent=DT;
+  document.getElementById('mq').value='';
+  drawDrill();showDrill();
+}
+function closeDrill(){const ov=document.getElementById('ov');ov.classList.remove('open');ov.setAttribute('aria-hidden','true')}
+function drillCsv(){
+  const out=[DC.map(c=>c[1])];DR.forEach(r=>out.push(DC.map(c=>r[c[0]])));
+  const txt=out.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+txt],{type:'text/csv'}));
+  a.download=('WO_'+month+'_'+DT).replace(/[^\w\-]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
+}
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-sc]');
+  if(el&&!e.target.closest('#ov'))openDrill(el);
+});
+document.getElementById('ov').addEventListener('click',e=>{if(e.target.id=='ov')closeDrill()});
+document.getElementById('mcl').onclick=closeDrill;
+document.getElementById('mq').oninput=drawDrill;
+document.getElementById('mex').onclick=drillCsv;
+document.addEventListener('keydown',e=>{if(e.key=='Escape')closeDrill()});
+
+/* ===== Pencarian (Enter) ===== */
+function doSearch(){
+  const q=document.getElementById('q').value.trim();
+  if(!q||!LAST)return;
+  const ql=q.toLowerCase();
+  DR=(LAST.rows||[]).filter(r=>r.w.toLowerCase().includes(ql)||DC.some(c=>String(r[c[0]]).toLowerCase().includes(ql)));
+  DT='Pencarian '+q;
+  document.getElementById('mtl').textContent='Pencarian: "'+q+'" · '+month;
+  document.getElementById('mq').value='';
+  drawDrill();showDrill();
+}
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+
+function csv(){
+  if(!LAST)return;
+  const out=[['Segmen','Work Order','N/A','OFF Target','On Progress','ON Target','Cancel']];
+  [['B2B',LAST.b2bKpi],['Retail',LAST.rtKpi],['TS Area B2B',LAST.tsB2bKpi],['TS Area Retail',LAST.tsRtKpi],['TS REPS',LAST.repKpi]]
+   .forEach(([s,rows])=>rows.forEach(r=>out.push([s,...r])));
+  const txt=out.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+txt],{type:'text/csv'}));
+  a.download='WO_'+month.replace(/\s+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
+}
+document.getElementById('exp').onclick=csv;
+
+/* ===== Ambil data dari Apps Script lewat fetch ===== */
+async function load(name){
+  const st=document.getElementById('st');
+  st.className='';st.textContent='Memuat data...';
+  try{
+    if(!API||API.indexOf('GANTI_')===0)throw new Error('Link API belum diisi (lihat const API di bagian script).');
+    const url=API+'?api=1'+(name?'&month='+encodeURIComponent(name):'')+'&t='+Date.now();
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const res=await r.json();
+    if(res.error)throw new Error(res.error);
+    month=res.month;st.textContent='';
+    const mo=document.getElementById('mo');
+    mo.innerHTML=res.names.map(n=>`<option${n==res.month?' selected':''}>${n}</option>`).join('');
+    mo.onchange=()=>load(mo.value);
+    const now=new Date().toLocaleString('id-ID');
+    document.getElementById('c1').innerHTML=`${res.month}: <b>${res.D.total} WO terbaca</b> · diperbarui ${now}`;
+    document.getElementById('h2').innerHTML=`${res.month} <span>${res.D.total} WO Terbaca</span>`;
+    document.getElementById('upd').textContent='Diperbarui '+now+' WIB · GitHub';
+    if(!res.D.total){st.textContent='Tab '+res.month+' belum ada data WO.'}
+    render(res.D);
+  }catch(e){
+    st.className='err';
+    st.textContent='Gagal memuat data: '+e.message;
+  }
+}
+document.getElementById('sync').onclick=()=>load(month||undefined);
+load();
+</script>
+</body>
+</html>
